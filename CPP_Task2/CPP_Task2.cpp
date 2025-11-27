@@ -8,69 +8,59 @@
 
 class FileActions {
 private:
-    int* fd_;
-    int*& fdRef_; 
-    std::vector<std::pair<std::string,int>> actions_;
+    int* fd;                  // heap pointer
+    int*& fdRef;              // reference to the pointer
+    std::vector<std::pair<std::string,int>> actions;
+    bool owner;               // only the first object deletes it
 
 public:
     FileActions() = delete;
 
-    FileActions(std::string& path)
-        : fd_(new int), fdRef_(fd_)    
+    FileActions(const std::string& path)
+        : fd(new int), fdRef(fd), owner(true)
     {
-        *fd_ = open(path.c_str(), O_RDWR);
-        if (*fd_ < 0) {
-            std::cerr << "Failed to open file\n";
+        *fd = open(path.c_str(), O_RDWR | O_CREAT, 0644);
+        if (*fd < 0) {
+            std::cout << "open failed\n";
         }
-        
     }
 
     FileActions(const FileActions& other)
-        : fd_(other.fd_),              // share same pointer
-          fdRef_(fd_)                  // reference bound to shared pointer
+        : fd(other.fd), fdRef(fd), actions(other.actions), owner(false)
     {
-        actions_ = other.actions_;     // copy actions 
     }
 
     void registerActions(std::initializer_list<std::pair<std::string,int>> list) {
-        for (auto& p : list) {
-            actions_.push_back(p);
-        }
+        for (auto& a : list) actions.push_back(a);
     }
 
-    void executeActions() {
-        for (const auto& a : actions_) {
-            if (a.first == "read") {
-                char buf[64];
-                int n = read(*fd_, buf, a.second);
-            } else if (a.first == "write") {
-                dprintf(*fd_, "Value = %d\n", a.second);
-            } else if (a.first == "close") {
-                close(*fd_);
+    void execute() {
+        for (auto& a : actions) {
+            if (*fd < 0) {
+                std::cout << "fd closed\n";
+                break;
+            }
+
+            if (a.first == "write") {
+                dprintf(*fd, "%d\n", a.second);
+            }
+            else if (a.first == "read") {
+                char buf[128]{0};
+                int r = read(*fd, buf, sizeof(buf)-1);
+                std::cout << "read: " << buf << "\n"; 
+            }
+            else if (a.first == "close") {
+                close(*fd);
+                *fd = -1;
             }
         }
+        actions.clear();
     }
 
     ~FileActions() {
-        if (fd_) {
-            close(*fd_);
-            delete fd_;
-            fd_ = nullptr;
+        if (owner) {
+            if (fd && *fd >= 0) close(*fd);
+            delete fd;
         }
     }
 };
-
-int main() {
-    std::string path = "/sys/class/leds/input2::capslock/brightness";
-
-    FileActions f1(path);
-    f1.registerActions({ {"write", 42}, {"write", 999} });
-
-    FileActions f2 = f1; 
-
-    f2.registerActions({ {"write", 123} });
-
-    f1.executeActions();
-    f2.executeActions();
-}
-
