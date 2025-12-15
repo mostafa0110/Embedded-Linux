@@ -3,9 +3,6 @@
 #include <fstream>
 #include <fcntl.h>
 #include <unistd.h>
-#include <thread>
-#include <chrono>
-#include <stdexcept>
 
 
 class TemperatureData {
