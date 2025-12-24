@@ -1,0 +1,5 @@
+/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build/CMakeFiles/SevenSegmentLib.dir
+/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build/CMakeFiles/MyApp.dir
+/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build/CMakeFiles/deploy.dir
+/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build/CMakeFiles/edit_cache.dir
+/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build/CMakeFiles/rebuild_cache.dir

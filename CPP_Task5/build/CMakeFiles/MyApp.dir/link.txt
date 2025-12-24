@@ -1,0 +1,1 @@
+/home/mostafa/x-tools/aarch64-rpi3-linux-gnu/bin/aarch64-rpi3-linux-gnu-g++ CMakeFiles/MyApp.dir/app/main.cpp.o -o MyApp  -Wl,-rpath,/home/mostafa/ITI_WS/Embedded-Linux/CPP_Task5/build libSevenSegmentLib.so 
