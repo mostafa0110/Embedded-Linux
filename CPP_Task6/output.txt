@@ -1,0 +1,9 @@
+CapsLock Off
+CapsLock On
+CapsLock Off
+CapsLock On
+CapsLock Off
+CapsLock On
+CapsLock Off
+CapsLock On
+CapsLock Off
