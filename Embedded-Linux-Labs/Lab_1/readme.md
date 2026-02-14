@@ -21,7 +21,7 @@ dd if=/dev/zero of=sd.img bs=1M count=1024
 * `count=1024`: **Count.** The number of blocks to copy (1024 * 1M = 1024 MB = 1 GiB).
 
 **Output:**
-(ddCMD.png)
+<img width="745" height="83" alt="ddCMD" src="https://github.com/user-attachments/assets/3ef775a6-9192-4a1a-a76e-3c8383acd9fe" />
 ---
 
 ## 2. DOS/MBR vs. GPT Partition Schemes
@@ -40,13 +40,6 @@ dd if=/dev/zero of=sd.img bs=1M count=1024
 * **FAT16 (File Allocation Table 16-bit):**
 * **Usage:** Very small embedded storage or legacy systems.
 * **Difference:** Maximum volume size is 2GB. Does *not* support Linux permissions.
-
-<img width="745" height="456" alt="cfdisk" src="https://github.com/user-attachments/assets/8140c8da-81ca-46b8-904c-3c94592107c6" />
-<img width="745" height="304" alt="mkfs" src="https://github.com/user-attachments/assets/180f58d8-7d18-48af-ab2a-267adda3ce9b" />
-<img width="745" height="71" alt="lsblk2" src="https://github.com/user-attachments/assets/7183b1b3-39df-428c-8726-be3364a11601" />
-<img width="745" height="71" alt="lsblk" src="https://github.com/user-attachments/assets/79ec2610-8691-42b6-a45d-435466a3a019" />
-<img width="745" height="49" alt="losetup" src="https://github.com/user-attachments/assets/ae6f88ff-4797-486a-b6bf-4416b9b7441a" />
-<img width="745" height="83" alt="ddCMD" src="https://github.com/user-attachments/assets/3ef775a6-9192-4a1a-a76e-3c8383acd9fe" />
 
 * **FAT32 (File Allocation Table 32-bit):**
 * **Usage:** The standard boot partition format for many embedded boards (like RPi) and USB drives.
@@ -71,7 +64,7 @@ use `cfdisk` to create the partition table.
 2. **Partition 2:** Primary, Rest of space, EXT4 (Linux).
 
 **Output:**
-(cfdisk.png)
+<img width="745" height="456" alt="cfdisk" src="https://github.com/user-attachments/assets/8140c8da-81ca-46b8-904c-3c94592107c6" />
 ---
 
 ## 5. Loop Devices in Linux
@@ -148,7 +141,7 @@ sudo losetup -f --partscan --show sd.img
 * `--show`: Print the name of the assigned loop device (e.g., `/dev/loop0`).
 
 **Output:**
-(losetup.png)
+<img width="745" height="49" alt="losetup" src="https://github.com/user-attachments/assets/ae6f88ff-4797-486a-b6bf-4416b9b7441a" />
 ---
 
 ## 9. Format the Virtual Disk Image Partitions
@@ -177,8 +170,9 @@ sudo mkfs.ext4 -L "rootfs" /dev/loop19p2
 * `-L "rootfs"`: Sets the volume label/name to "rootfs".
 
 **Output:**
-(mkfs.png)
-(lsblk.png)
+<img width="745" height="304" alt="mkfs" src="https://github.com/user-attachments/assets/180f58d8-7d18-48af-ab2a-267adda3ce9b" />
+
+<img width="745" height="71" alt="lsblk" src="https://github.com/user-attachments/assets/79ec2610-8691-42b6-a45d-435466a3a019" />
 ---
 
 ## 10. The "mount" and "umount" Commands
@@ -228,4 +222,4 @@ sudo mount /dev/loop19p2 rootfs
 
 
 **Output:**
-(lsblk2.png)
+<img width="745" height="71" alt="lsblk2" src="https://github.com/user-attachments/assets/7183b1b3-39df-428c-8726-be3364a11601" />
