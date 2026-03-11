@@ -316,3 +316,100 @@ Run `make` and start QEMU. Type `hello` at the prompt.
 <img width="939" height="441" alt="PB-Q6" src="https://github.com/user-attachments/assets/0d6481a1-0e08-442c-b046-e89bf14eb18b" />
 
 
+
+### 7. Network Booting with TFTP
+
+**a. Set Up a TFTP Server on Your Laptop**
+**Steps:**
+
+1. Install the TFTP server package:
+```bash
+sudo apt update
+sudo apt install tftpd-hpa
+
+```
+
+
+2. Create the TFTP directory and set permissions:
+```bash
+sudo mkdir -p /srv/tftp
+sudo chown -R tftp:tftp /srv/tftp
+sudo chmod -R 777 /srv/tftp
+
+```
+
+
+3. Copy test files into the directory:
+```bash
+echo "This is loaded via TFTP" > /srv/tftp/test_tftp.txt
+
+```
+
+
+4. Restart the service:
+```bash
+sudo systemctl restart tftpd-hpa
+
+```
+
+
+
+**b. From U-Boot Configure Network & Test**
+configure the IP addresses to establish a connection.
+**Commands:**
+
+```bash
+# Set the board's IP address
+setenv ipaddr 192.168.1.10
+
+# Set the host PC's IP address (the TFTP server)
+setenv serverip 192.168.1.5
+
+# Test the connection
+ping 192.168.1.5
+
+```
+
+
+**c. Load Kernel + DTB via TFTP**
+use `tftpboot` command to pull the files into RAM.
+
+**Commands:**
+
+```bash
+# Load the test file into RAM at address 0x62000000
+tftpboot 0x62000000 test_tftp.txt
+
+# Verify the file was loaded correctly
+md 0x62000000
+
+```
+
+---
+
+### 8. Difference between `run` and `go` commands
+
+* **`run` command:** This is used to execute **U-Boot environment variables**. If you have a variable containing a script or a sequence of U-Boot commands (like `run bootcmd`), U-Boot will read the string and execute those text commands one by one.
+* **`go` command:** This is used to execute **machine code binary**. You pass it a specific memory address (e.g., `go 0x62000000`), and the CPU's program counter directly jumps to that physical address in RAM to start executing whatever standalone application or binary is loaded there.
+
+---
+
+### 9. What is the purpose of `bootargs` and who reads it?
+
+* **Purpose:** The `bootargs` variable holds the **Kernel Command Line**. It contains critical configuration parameters that tell the operating system how to mount the root filesystem (e.g., `root=/dev/mmcblk0p2`), what console to use for output (e.g., `console=ttyAMA0,115200`), and other boot-time parameters.
+* **Who reads it:** It is passed by U-Boot, but it is read and parsed exclusively by the **Linux Kernel** during its startup phase.
+
+---
+
+### 10. Why do we use 0x62000000 and not 0x60000000 for kernel address on Raspberry Pi?
+
+We use `0x62000000` (an offset of 32MB from the base address of `0x60000000`) instead of the exact start of the DRAM to prevent **memory corruption**.
+
+If you load a large kernel file exactly at the start of RAM (`0x60000000` on VExpress, or `0x0` on RPi):
+
+1. It might overwrite U-Boot's exception vector tables or global data structures located at the bottom of memory.
+2. The Linux kernel requires extra free space directly below or above itself to safely decompress its `zImage` in RAM before it starts executing.
+
+Using an offset like `0x62000000` ensures a safe, empty buffer zone for the kernel to unpack without crashing the active bootloader.
+
+
