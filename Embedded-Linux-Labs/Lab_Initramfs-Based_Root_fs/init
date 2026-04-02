@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# 1. Mount the critical virtual filesystems
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+
+# 2. Wait for the hardware to wake up
+# (Checking for both partitions makes it 100% safe)
+echo "Waiting for SD card partitions to initialize..."
+while [ ! -e /dev/mmcblk0p2 ] || [ ! -e /dev/mmcblk0p3 ]; do
+    sleep 1
+done
+
+# 3. The Interactive Menu
+echo "================================="
+echo " Welcome to Mostafa Boot Manager "
+echo "================================="
+echo " 1) Boot System A (ROOT1)"
+echo " 2) Boot System B (ROOT2)"
+echo "================================="
+
+# Use POSIX-compliant prompt instead of bash-specific 'read -p'
+printf "Select OS (1 or 2): "
+read choice
+
+# 4. Create a landing zone for the physical drive
+mkdir -p /newroot
+
+# 5. Mount the selected partition
+if [ "$choice" = "2" ]; then
+    echo "Mounting System B..."
+    mount /dev/mmcblk0p3 /newroot
+else
+    echo "Mounting System A..."
+    mount /dev/mmcblk0p2 /newroot
+fi
+
+# ---> THE FIX: Move the virtual filesystems to the new drive <---
+# 1. Create the empty folders on the physical SD card so we have a place to put them
+mkdir -p /newroot/dev /newroot/proc /newroot/sys
+
+# 2. Physically move the active mounts from RAM to the SD card
+mount --move /dev /newroot/dev
+mount --move /proc /newroot/proc
+mount --move /sys /newroot/sys
+
+# 6. Hand over control!
+echo "Executing switch_root..."
+exec switch_root /newroot /sbin/init
+
+# 7. Safety Net
+echo "KERNEL PANIC: switch_root failed!"
+/bin/sh
